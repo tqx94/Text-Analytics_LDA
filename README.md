@@ -2,10 +2,17 @@
 
 ## Objectives
 1. Overview
-2. Datasets
+2. Datasets/Codes
 3. Process
 
-## Process
+## 1. Overview
+This is a topic modelling analysis using Latent Dirichlet Allocation (LDA) model. There will be close to 1000 rows of data, and the aim is to find common topics from the different rows of free text. 
+
+## 2. Datasets/Codes
+ - The datasets are confidential. But in general, the dataset should be in any csv file, with 2 columns - docID and texttoclassify. Each row under texttoclassify will represent the text for topic modelling.  
+ - The codes are used to represent the 
+
+## 3. Process
 ### Loading dataset 
 We will load the full raw text data. And zoom in to the columns of interest
 ### Cleaning the data 
