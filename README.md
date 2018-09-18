@@ -10,7 +10,9 @@ This is a topic modelling analysis using Latent Dirichlet Allocation (LDA) model
 
 ## 2. Datasets/Codes
  - The datasets are confidential. But in general, the dataset should be in any csv file, with 2 columns - docID and texttoclassify. Each row under texttoclassify will represent the text for topic modelling.  
- - The codes are used to represent the 
+ - The codes are as follow:
+   1. loadingofdata - processing/loading
+   2. analysis - LDA analysis comes here
 
 ## 3. Process
 ### Loading dataset 
@@ -35,7 +37,7 @@ After cleaning, we mapped back to the original data and replace the tokens, and 
 - We can also make use of theta - (Pr(topic|document)) to find whats the probability of topic per document. 
 
 ### Visualisation of topics 
-- word cloud in r
+- Word cloud in r
 
 
 
