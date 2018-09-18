@@ -22,5 +22,13 @@ After cleaning, we mapped back to the original data and replace the tokens, and 
 - We can also plot a dedrogram to see if the algorithm suggest anything about clustering the topics together. 
 
 ### Output from LDA analysis
-- Each topic will have each word/2words with an assigned phi value (pr(word|topic)). So we only take into account the top 20 values per word in each topic. And the top 20 terms will describe what is the topic about. 
-- Topic will be 
+- Each topic will have each word/2words with an assigned phi value (pr(word|topic)). So we only take into account the top 20 values per word in each topic. And the top 20 terms will describe what the topic is about. 
+- There will be multiple topics, and we can try dendograms to find which are the topics that may be potentially related. 
+- And if we want, we can manually assign labels to the different topics. 
+- We can also make use of theta - (Pr(topic|document)) to find whats the probability of topic per document. 
+
+### Visualisation of topics 
+- word cloud in r
+
+
+
