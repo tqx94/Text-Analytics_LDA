@@ -1,32 +1,14 @@
-options(scipen = 999)
-
-# Load the data -----------------------------------------------------------
-cleaned_tokens <- readRDS("~/topicmodelling/cleaned_tokens.rds")
-
 # Cleaning the data -------------------------------------------------------
-# Remove the punctuations
-# Remove the stopwords
-tokens <- reasons %>%
-  tidytext::unnest_tokens(word, Reasons) 
-tokens$word <- gsub('[[:digit:]]+', '', tokens$word)
-tokens$word <- gsub('[[:punct:]]+', '', tokens$word)
-tokens <- tokens %>% filter(!(nchar(word) == 1))%>% 
-  anti_join(stop_words)
-tokens <- tokens %>% filter(!(word==""))
-tokens <- left_join(tokens,cleaned_tokens)
-#remove those REMOVE_NA
-tokens <- tokens %>% filter(!(replacement=="REMOVE_NA"))
-tokens <- tokens %>% filter(!(replacement=="reason"))
-tokens <- tokens %>%  mutate(word = replacement) %>%
-  select(-replacement)
-tokens <- tokens %>% group_by(ID) %>% mutate(ind = row_number()) %>%
+
+tokens <- tokens %>% mutate(ind = row_number())
+tokens <- tokens %>% group_by(id) %>% mutate(ind = row_number()) %>%
   tidyr::spread(key = ind, value = word)
 tokens [is.na(tokens)] <- ""
-tokens <- tidyr::unite(tokens, reason_new,-ID,sep =" " )
-tokens$reason_new <- trimws(tokens$reason_new)
+tokens <- tidyr::unite(tokens, text,-id,sep =" " )
+tokens$text <- trimws(tokens$text)
 
 #create DTM
-dtm <- CreateDtm(tokens$reason_new, 
+dtm <- CreateDtm(tokens$text, 
                  doc_names = tokens$ID, 
                  ngram_window = c(1, 2))
 
@@ -70,7 +52,7 @@ coherence_mat <- data.frame(k = sapply(model_list, function(x) nrow(x$phi)),
 ggplot(coherence_mat, aes(x = k, y = coherence)) +
   geom_point() +
   geom_line(group = 1)+
-  ggtitle("BO - Optimal Number of Topics") + theme_minimal() +
+  ggtitle("Best Topic by Coherence Score") + theme_minimal() +
   scale_x_continuous(breaks = seq(1,20,1)) + ylab("Coherence")
 
 #select models based on max average
