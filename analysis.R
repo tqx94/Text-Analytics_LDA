@@ -1,5 +1,3 @@
-# Cleaning the data -------------------------------------------------------
-
 tokens <- tokens %>% mutate(ind = row_number())
 tokens <- tokens %>% group_by(id) %>% mutate(ind = row_number()) %>%
   tidyr::spread(key = ind, value = word)
