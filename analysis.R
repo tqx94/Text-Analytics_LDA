@@ -103,16 +103,6 @@ final_summary_words <- final_summary_words %>% group_by(topic, word) %>% filter(
   ungroup() %>% tidyr::separate(topic, into =c("t","topic")) %>% select(-t)
 word_topic_freq <- left_join(final_summary_words, original_tf, by = c("word" = "term"))
 
-#visualising topics of words based on the max value of phi
-set.seed(1234)
-pdf("BO.pdf")
-for(i in 1:length(unique(final_summary_words$topic)))
-{  wordcloud(words = subset(final_summary_words ,topic == i)$word, freq = subset(final_summary_words ,topic == i)$value, min.freq = 1,
-             max.words=200, random.order=FALSE, rot.per=0.35, 
-             colors=brewer.pal(8, "Dark2"))}
-
-dev.off()
-
 #4. per-document-per-topic probabilities ----------------------------------------------
 #trying to see the topic in each document
 theta_df <- data.frame(model$theta)
@@ -125,76 +115,21 @@ theta_df <- theta_df %>% tidyr::separate(topic, into =c("t","topic")) %>% select
 FINAL_document_topic <- theta_df %>% group_by(document) %>% 
   arrange(desc(value)) %>% filter(row_number() ==1)
 
-#5. Labelling of topics ----------------------------------------------
-#use bigram(> 0.5) to label
-model$assignments <- model$theta
-model$assignments[ model$assignments < 0.05 ] <- 0
-model$assignments <- model$assignments / rowSums(model$assignments)
-model$assignments[ is.na(model$assignments) ] <- 0
-# Get some topic labels using n-grams from the DTM
-model$labels <- LabelTopics(assignments = model$assignments, 
-                            dtm = dtm,
-                            M = 2)
-#labelling of words and topics
-label <- data.frame(model$labels)
-label$topic <- rownames(label)
-rownames(label) <-1:nrow(label)
-label <- label %>% select(topic,label_1) %>% rename(topic_name = label_1)
-label <- label %>% tidyr::separate(topic, into =c("t","topic"))
-FINAL_label <- label %>% select(-t)
-
-#6. Visualising of topics in a dendrogram ----------------------------------------------
+#5. Visualising of topics in a dendrogram ----------------------------------------------
 #probability distributions called Hellinger distance, distance between 2 probability vectors
 model$topic_linguistic_dist <- CalcHellingerDist(model$phi)
 model$hclust <- hclust(as.dist(model$topic_linguistic_dist), "ward.D")
 model$hclust$labels <- paste(model$hclust$labels, model$labels[ , 1])
 plot(model$hclust)
+                                       
 
-# 7. Product and error mapping --------------------------------------------
-#heatmap
-ggplot(count_prdt_type_perc, aes(x, y)) +
-  geom_bin2d(aes(fill = prop)) +
-  scale_fill_gradient(low = "gold", high ="red")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  xlab("x") +ylab("y") 
-
-# Remodelling based on cluster --------------------------------------------
-#using cluster as label
-dtm <- CreateDtm(tokens$reason_new, 
-                 doc_names = tokens$ID, 
-                 ngram_window = c(1, 2))
-
-result <- FindTopicsNumber(
-  dtm,
-  topics = seq(from = 2, to = 15, by = 1),
-  metrics = c("Griffiths2004", "CaoJuan2009", "Arun2010", "Deveaud2014"),
-  method = "Gibbs",
-  control = list(seed = 77),
-  mc.cores = 2L,
-  verbose = TRUE)
-FindTopicsNumber_plot(result)
-
-model$hclust$clustering <- cutree(model$hclust, k = 6)
-model$hclust$labels <- paste(model$hclust$labels, SYS_model$labels[ , 1])
-plot(model$hclust)
-rect.hclust(model$hclust, k = length(unique(model$hclust$clustering)))
-
-#Labelling of cluster
-FINAL_clustername <- data.frame(model$hclust$clustering)
-FINAL_clustername$cluster <- rownames(FINAL_clustername) 
-rownames(FINAL_clustername)  <- 1:nrow(FINAL_clustername)
-FINAL_clustername <- FINAL_clustername %>% 
-  rename(cluster= model.hclust.clustering, topic_name = cluster)
-FINAL_clustername <- FINAL_clustername %>% 
-  tidyr::separate(topic_name, into = c("topic", "topic_name"),sep = " ")
-FINAL_clustername <- FINAL_clustername %>% tidyr::separate(topic, into = c("t","topic"), sep ="_")
-FINAL_clustername <- FINAL_clustername %>% select(-t)
-
-#wordcloud 
+#visualising topics of words based on the max value of phi
+set.seed(1234)
 pdf("cluster.pdf")
-for(i in 1:length(unique(FINAL_word_cluster_freq$cluster)))
-{  wordcloud(words = subset(FINAL_word_cluster_freq ,cluster == i)$word, 
-             freq = subset(FINAL_word_cluster_freq ,cluster == i)$value, min.freq = 1,
+for(i in 1:length(unique(final_summary_words$topic)))
+{  wordcloud(words = subset(final_summary_words ,topic == i)$word, freq = subset(final_summary_words ,topic == i)$value, min.freq = 1,
              max.words=200, random.order=FALSE, rot.per=0.35, 
              colors=brewer.pal(8, "Dark2"))}
+
 dev.off()
+                                       
